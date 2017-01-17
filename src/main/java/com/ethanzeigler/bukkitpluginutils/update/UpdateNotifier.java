@@ -42,11 +42,13 @@ public class UpdateNotifier implements Listener {
         }
 
 
-        // file update
-        hasFileUpdated = hasFileUpdated();
-        if (hasFileUpdated) {
-            Bukkit.broadcast(plugin.getBPUOptions().getUpdateInstalledMessage() + plugin.getBPUOptions().getChangelog()
-                    , plugin.getBPUOptions().getUpdateAlertPermission());
+        // file update, if enabled
+        if (plugin.getBPUOptions().isUpdateInstalledMessageOn()) {
+            hasFileUpdated = hasFileUpdated();
+            if (hasFileUpdated) {
+                Bukkit.broadcast(plugin.getBPUOptions().getUpdateInstalledMessage() + plugin.getBPUOptions().getChangelog()
+                        , plugin.getBPUOptions().getUpdateAlertPermission());
+            }
         }
     }
 

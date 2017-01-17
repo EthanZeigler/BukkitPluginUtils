@@ -1,5 +1,7 @@
 package com.ethanzeigler.bukkitpluginutils.language;
 
+import javafx.util.Pair;
+
 /**
  * Represents a class that can provide messages based on a given key
  */

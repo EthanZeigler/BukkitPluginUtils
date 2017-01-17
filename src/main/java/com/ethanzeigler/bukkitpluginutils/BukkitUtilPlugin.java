@@ -13,6 +13,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
 
 import java.io.*;
+import java.util.zip.ZipFile;
 
 /**
  * A extended plugin that adds lots of features that Bukkit Developers used to have to write over and over.
@@ -59,7 +60,7 @@ public abstract class BukkitUtilPlugin extends JavaPlugin {
      * @return The {@link YamlConfiguration} specified by the path.
      * @throws IOException if the file fails to load or the file does not exist and cannot be created.
      */
-    public FileConfiguration getFile(String path) {
+    public YamlConfiguration getYamlConfiguration(String path) {
         validateState();
         File file = null;
         try {
@@ -72,6 +73,22 @@ public abstract class BukkitUtilPlugin extends JavaPlugin {
             throw new RuntimeException(new IOException(
                     "Could not load file:" + file.getPath()));
         }
+    }
+
+    /**
+     * Gets a file from the plugin data folder. If the file does not exist, it will be created.
+     *
+     * @param fileName the file name to get
+     * @return the found file. If the file does not exist, it will be created.
+     */
+    public File getFile(String fileName) {
+        File file = new File(pluginDirectoryPath + fileName);
+        try {
+            file.createNewFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return file;
     }
 
     /**
@@ -101,25 +118,25 @@ public abstract class BukkitUtilPlugin extends JavaPlugin {
         utils:
           prefix:
           update:
-            enabled: true
+            remote_enabled: true
+            local_enabled: true
             changelog:
             permission_node:
-        - default plugin prefix
-        - changelog
-        - update notification permission
-         */
-        BPUOptions options = new BPUOptions(this.getDescription().getFullName());
 
-        try {
+         */
+        options = new BPUOptions(this.getDescription().getFullName());
+
+        try (ZipFile zipFile = new ZipFile(getFile())){
             FileConfiguration yml = YamlConfiguration.loadConfiguration(
-                    new BufferedReader(new FileReader(getClass().getResource("plugin.yml").getFile())));
+                    new BufferedReader(new InputStreamReader(zipFile.getInputStream(zipFile.getEntry("plugin.yml")))));
             // load extra data
             // null check is part of the options class
             options.setPluginPrefix((String) yml.get("utils.prefix"));
-            options.setUpdateCheckEnabled((Boolean) yml.get("utils.update.enabled"));
+            options.setUpdateCheckEnabled((Boolean) yml.get("utils.update.remote_enabled"));
+            options.setUpdateInstalledMessageOn((Boolean) yml.get("utils.update.local_enabled"));
             options.setChangelog((String) yml.get("utils.update.changelog"));
             options.setUpdateAlertPermission((String) yml.get("utils.update.permission_node"));
-        } catch (FileNotFoundException | ClassCastException e) {
+        } catch (ClassCastException | IOException e) {
             e.printStackTrace();
         }
 
@@ -244,7 +261,15 @@ public abstract class BukkitUtilPlugin extends JavaPlugin {
      * @param runnable the runnable to run synchronously.
      */
     public void runSynchronously(Runnable runnable) {
-        getServer().getScheduler().runTask(this, runnable);
+        runSynchronously(runnable, 0);
+    }
+
+    /**
+     * Runs a runnable synchronously. Simply a convenience method.
+     * @param runnable the runnable to run synchronously.
+     */
+    public void runSynchronously(Runnable runnable, long delay) {
+        getServer().getScheduler().runTaskLater(this, runnable, delay);
     }
 
     /**

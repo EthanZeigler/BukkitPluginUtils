@@ -11,8 +11,8 @@ public class BPUOptions {
     private String updateAlertPermission = "Unassigned";
     private String pluginPrefix = "";
     private String changelog;
-    private boolean languageManagerEnabled = false;
     private long ticksBetweenUpdateChecks = 864000L;
+    private boolean isUpdateInstalledMessageOn = true;
 
     public BPUOptions(String pluginName ) {
         updateInstalledMessage = pluginName + " has updated. Here's what changed: ";
@@ -179,5 +179,22 @@ public class BPUOptions {
      */
     private boolean isNull(Object obj) {
         return obj == null;
+    }
+
+    /**
+     * Gets whether or not the local update message is enabled.
+     * @return whether or not the local update message is enabled.
+     */
+    public boolean isUpdateInstalledMessageOn() {
+        return isUpdateInstalledMessageOn;
+    }
+
+    /**
+     * Sets whether or not the local update message is enabled.
+     */
+    public void setUpdateInstalledMessageOn(Boolean updateInstalledMessageOn) {
+        if (!isNull(updateInstalledMessageOn)) {
+            isUpdateInstalledMessageOn = updateInstalledMessageOn;
+        }
     }
 }

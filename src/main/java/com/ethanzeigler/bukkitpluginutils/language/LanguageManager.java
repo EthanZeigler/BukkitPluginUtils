@@ -1,4 +1,5 @@
 package com.ethanzeigler.bukkitpluginutils.language;
+import javafx.util.Pair;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -83,6 +84,25 @@ public class LanguageManager {
 
     public static String getBeautifiedMessage(ChatColor startColor, String msg, String pluginPrefix) {
         return String.format("%s[%s] %s", startColor == null ? ChatColor.RESET : startColor, pluginPrefix, msg);
+    }
+
+    /**
+     * Returns the message with the given key pairs replaced, if found.
+     *
+     * <p>The key pairs replace the given String identified by {@link String#replace(CharSequence, CharSequence)}
+     * with the value's {@link Object#toString()} output.</p>
+     * @param key the message key as found in the current localization method
+     * @param replacements key pairs that will be replaced in the String
+     * @return the message with the the given replacements
+     */
+    public String getMessageAndReplace(String key, Pair<String, Object>... replacements) {
+        String msg = getMessage(key);
+
+        for (Pair<String, Object> replacement : replacements) {
+            msg = msg.replace(replacement.getKey(), replacement.getValue().toString());
+        }
+
+        return msg;
     }
 
     public MessageProvider getMessageProvider() {

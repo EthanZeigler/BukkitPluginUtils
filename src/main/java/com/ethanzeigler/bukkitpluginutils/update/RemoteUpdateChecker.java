@@ -43,17 +43,22 @@ public class RemoteUpdateChecker {
      * @param slug               the plugin's name as defined in the URL in it's bukkitdev page.
      * @param currentVersionName the exact version found in the plugin yml, which can be found with
      *                           {@link PluginDescriptionFile#getVersion()} from {@link JavaPlugin#getDescription()}
-     * @return Update information in the form of an UpdateCallback Object
+     * @return Update information in the form of an UpdateCallback Object. This will be null if the update check fails.
      */
     public static UpdateCallback updateCheck(String slug, String currentVersionName) {
         VersionSet versionSet = getVersionData(slug);
 
         // get this version and compare it to the existing one
-        if (!versionSet.getRelease().getVersionNumber().equals(currentVersionName)) {
-            // there's an update
-            return new UpdateCallback(versionSet.getRelease(), true);
+        if (versionSet != null) {
+            if (versionSet.getRelease() != null &&
+                    !versionSet.getRelease().getVersionNumber().equals(currentVersionName)) {
+                // there's an update
+                return new UpdateCallback(versionSet.getRelease(), true);
+            } else {
+                return new UpdateCallback(versionSet.getRelease(), false);
+            }
         } else {
-            return new UpdateCallback(versionSet.getRelease(), false);
+            return new UpdateCallback(null, false);
         }
     }
 
@@ -110,7 +115,7 @@ public class RemoteUpdateChecker {
                 String versionNumber;
 
                 if (jsonVersionData.get(currentTag.getLowerCase()) == null) {
-                    continue; // there is data for this version tag
+                    continue; // there is no data for this version tag
                 }
 
                 currentVersion = jsonVersionData.get(currentTag.getLowerCase()).getAsJsonObject();
